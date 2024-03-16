@@ -16,6 +16,7 @@ https://udagawamac.github.io/kadai05_chat/
 
 ## ⑤難しかった点・次回トライしたいこと(又は機能)
 - ローカルストレージに配列で保存して、取り出せるようにしたい
+- JSONを使ってFirebaseでデータ送受をしたい
 
 ## ⑥質問・疑問・感想、シェアしたいこと等なんでも
 - [質問] 
@@ -24,5 +25,5 @@ https://udagawamac.github.io/kadai05_chat/
 - [tips] 
 
 ## [参考記事]
-- BingMaps GO!
+- BingMaps GO!のinfoboxサンプル
 - https://mapapi.org/open.php?file=example11&h=3
