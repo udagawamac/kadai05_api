@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <script src="js/jquery-2.1.3.min.js"></script>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="./img/poi_custom.png">
+  <title>マップdeクエスト</title>
+  <style>html,body {height: 100%;}body{padding: 0;margin: 0;}</style>
+</head>
+
+<body>
+  <h1>マップdeクエスト</h1>
+  <!-- MAP[START] -->
+  <div id="myMap" style='width:100%;height:60%;float:left;display:block;'></div>
+  <!-- MAP[END] -->
+  
+  <!-- キーワード入力・表示エリア -->
+<div class=input_keyword style="margin-bottom: 16px;">
+  <h3>キーワードを入力
+  <span id="hint">もう一度見る</span></h3>
+  <input id="keyword" type=text;></input>
+  <button id="save">保存</button>
+  <a href="index3.html" style="margin-left: 6px;">次の問題</a>
+  <h3 style="margin-top: 15px;">集めたキーワード：</h3>
+  <div id="memo"></div>
+</div>
+
+  <!-- アイテム表示エリア -->
+  <div style="background-color: rgb(255, 254, 240); padding: 10px 0px;">
+    <h3>手に入れたアイテム</h3>
+    <div class="itemarea">
+      <ul id="myitem">
+          <li id="item1"><img src="./img/himejijo_il.jpg" alt="姫路城" style="width:100px; border: 5px solid #974d034c;"></li>
+          <li id="item2"><img src="./img/kinkakuji_il.jpg" alt="金閣寺" style="width:100px; border: 5px solid #974d034c;"></li>
+          <li id="item3" class="hidden"><img src="./img/toshogu_il.JPG" alt="日光東照宮" style="width:100px; border: 5px solid #974d034c;"></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ポップアップ -->
+  <div id="popup-wrapper">
+    <div id="popup-inside">
+      <h2>＼正解／</h2><br>
+      <p>アイテムゲット！</p><br>
+      <p>キーワードは「見ざる言わざる聞かざる」だよ</p><br>
+      <button id="jump">キーワードを入力する</button>
+      <img id=photo src="./img/toshogu.jpg" ; height:30px; width:30px;>
+      <p><a href="https://www.toshogu.jp/" target="_blank">日光東照宮について調べる</a></p>
+    </div>
+  </div>
+  <div id="popup-wrapper2">
+    <div id="popup-inside2">
+      <div id="close">x</div>
+      <p>残念、不正解</p>
+    </div>
+  </div>
+
+  <audio src="./sound/itemget.mp3" id="play_sound_get"></audio>
+  <audio src="./sound/true.mp3" id="play_sound_true"></audio>
+  <audio src="./sound/false.mp3" id="play_sound_false"></audio>
+
+  <script
+  src='https://www.bing.com/api/maps/mapcontrol?callback=GetMap&key='
+    async defer></script>
+  <script src="/js/BmapQuery.js"></script>
+  <script>
+    // BingMaps&BmapQuery
+    //Init
+    function GetMap() {
+      //1. Instance
+      const map = new Bmap("#myMap");
+
+      //2. Display Map
+      map.startMap(36.759170, 139.598600, "load", 10); //The place is Nikko.
+      let center = map.getCenter();
+      //3.Create custom Pushpin
+      let pin = map.pinIcon(36.759170, 139.598600, "./img/poi_custom.png", 1.0, 0, 0);
+
+      //4. Add Infobox-Actions(Event)
+      // map.onInfobox(lat, lon, "title","description", "text or html");
+      //Configuration
+      const title = "第３問";
+      const discript = '<div style="width:200px;color:black;">この場所にある世界遺産は何？</div>';
+      const actions =
+        [
+          //1.action
+          {
+            label: '日光東照宮',
+            eventHandler: function () { //function
+              //ポップアップ表示
+              map.crearInfobox();
+              const popupWrapper = document.getElementById('popup-wrapper');
+              popupWrapper.style.display = "block";
+              const popupWrapper2 = document.getElementById('popup-wrapper2');
+              popupWrapper2.style.display = 'none';
+              $("#item3").removeClass("hidden");
+              $("#play_sound_get").get(0).play();
+              // 「キーワードを入力」でポップアップを閉じる
+              $("#jump").on("click", function () {
+              popupWrapper.style.display = 'none';
+              })            }
+          },
+          //2.action
+          {
+            label: '鶴岡八幡宮',
+            eventHandler: function () { //function
+              // map.crearInfobox();
+              //ポップアップ表示
+              const popupWrapper2 = document.getElementById('popup-wrapper2');
+              popupWrapper2.style.display = "block";
+              const popupWrapper = document.getElementById('popup-wrapper');
+              popupWrapper.style.display = "none";
+              $("#play_sound_false").get(0).play();
+              // 「x」のマークをクリックしたときポップアップを閉じる
+              $("#close").on("click", function () {
+                popupWrapper2.style.display = 'none';
+              })
+            }
+          }
+        ];
+      //Create Event to Infobox
+      map.onInfobox(36.759170, 139.598600, title, discript, actions);
+    }
+
+    // ローカルストレージからデータを取得して表示
+    if (localStorage.getItem("memo")) {
+            const v = localStorage.getItem("memo");
+            $("#memo").append(v);
+            }
+
+    // キーワードを取得してJSON化
+    const keywords=$("#keyword").val();
+    $.getJSON(keywords,
+     function(data){
+      console.dir(data);
+      console.log(data.items);
+      shelf.push(data.items);
+      // (1)繰り返し処理を使い、すべてのデータを取得し、文字列を作成
+      let view = ""; //表示文字列を入れる変数
+      for (let i = 0; i < data.items.length; i++) {
+           let item = data[i]; //[i]個目のデータを参照
+           view += '<ul>';
+           view += '<li>' + item + '</li>';
+           view += '</ul>';
+          }
+      // (2)id="memo"に文字列を表示
+      $("#memo").html(view);
+     })
+  
+
+            //キーワードをSaveボタンでローカルストレージに保存
+    $("#save").on("click",function(){
+        const v=$("#keyword").val();
+        localStorage.setItem("memo",v)
+        $("#memo").append(v)
+        $("#keyword").val("")
+    })
+
+    // 「もう一度見る」でリロード
+    $("#hint").on("click",function(){
+        location.reload();
+    })
+
+  </script>
+</body>
+</html
