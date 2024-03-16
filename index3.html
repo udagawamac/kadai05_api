@@ -24,7 +24,7 @@
   <span id="hint">もう一度見る</span></h3>
   <input id="keyword" type=text;></input>
   <button id="save">保存</button>
-  <a href="index3.html" style="margin-left: 6px;">次の問題</a>
+  <a href="index4.html" style="margin-left: 6px;">次の問題</a>
   <h3 style="margin-top: 15px;">集めたキーワード：</h3>
   <div id="memo"></div>
 </div>
@@ -132,27 +132,7 @@
             $("#memo").append(v);
             }
 
-    // キーワードを取得してJSON化
-    const keywords=$("#keyword").val();
-    $.getJSON(keywords,
-     function(data){
-      console.dir(data);
-      console.log(data.items);
-      shelf.push(data.items);
-      // (1)繰り返し処理を使い、すべてのデータを取得し、文字列を作成
-      let view = ""; //表示文字列を入れる変数
-      for (let i = 0; i < data.items.length; i++) {
-           let item = data[i]; //[i]個目のデータを参照
-           view += '<ul>';
-           view += '<li>' + item + '</li>';
-           view += '</ul>';
-          }
-      // (2)id="memo"に文字列を表示
-      $("#memo").html(view);
-     })
-  
-
-            //キーワードをSaveボタンでローカルストレージに保存
+    //キーワードをSaveボタンでローカルストレージに保存
     $("#save").on("click",function(){
         const v=$("#keyword").val();
         localStorage.setItem("memo",v)
